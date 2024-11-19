@@ -10,7 +10,7 @@
 #
 
 usage() {
-    echo "Usage: $0 [-o <output_files_path>] [-p <panel_folder_name>] [-f <flowcell_id>] [-s <sample_id>] [-r <refseq>] [-l] [-w] [fastq1 fastq2 ...]" 1>&2;
+    echo "Usage: $0 -o <output_files_path> -p <panel_folder_name> -f <flowcell_id> -s <sample_id> -r <refseq> [-g <alternate_gpackage_path] [-L <interval_file>] [-l] [-w] fastq1 fastq2 ..." 1>&2;
 }
 
 show_help() {
@@ -23,6 +23,7 @@ show_help() {
     echo "  -r <refseq> : The internal Docker path where the reference sequence .fasta file is mounted (usually in /gpackage)" 1>&2
     echo "Optional Parameters:" 1>&2
     echo "  -g <gpackage_path> : Supply a different gpackage path (defaults to /gpackage)" 1>&2
+    echo "  -L <interval_file_path> : Interval file to be supplied to the pipeline" 1>&2
     echo "Optional Flags:" 1>&2
     echo "  -l : Use low-memory mode for GPUs with 16GB of memory" 1>&2
     echo "  -w : Use WES mode" 1>&2
@@ -65,6 +66,12 @@ check_args() {
         usage
         exit 1
     fi
+    if [ ! -z "${INTERVAL_FILE_PATH}" ] && [ ! -f "${INTERVAL_FILE_PATH}" ]
+    then
+        printf "ERROR: you must supply a valid interval file that exists\n"
+        usage
+        exit 1
+    fi
     # Strip trailing slashes (/) from the supplied gpackage directory path
     GPACKAGE_PATH=$(echo "$GPACKAGE_PATH" | sed 's:/*$::')
 }
@@ -78,7 +85,7 @@ USE_WES_MODEL=""
 
 # Pull in command-line arguments
 
-while getopts ":o:p:f:s:r:g:lwh" o; do
+while getopts ":o:p:f:s:r:g:L:lwh" o; do
     case "${o}" in
         o) OUTPUT_FILES="${OPTARG}" ;;
         p) PANEL_FOLDER="${OPTARG}" ;;
@@ -86,6 +93,7 @@ while getopts ":o:p:f:s:r:g:lwh" o; do
         s) SAMPLE_ID="${OPTARG}" ;;
         r) REFERENCE_SEQUENCE="${OPTARG}" ;;
         g) GPACKAGE_PATH="${OPTARG}" ;;
+        L) INTERVAL_FILE_PATH="${OPTARG}" ;;
         l) USE_LOW_MEMORY="--low-memory " ;;
         w) USE_WES_MODEL="--use-wes-model " ;;
         h)
@@ -141,6 +149,11 @@ OUTPUT_BAM_FOLDER="${OUTPUT_SAMPLE_FOLDER}/bam"
 OUTPUT_LOGS_FOLDER="${OUTPUT_SAMPLE_FOLDER}/logs"
 OUTPUT_QC_FOLDER="${OUTPUT_SAMPLE_FOLDER}/QC_stats"
 OUTPUT_VARIANTS_FOLDER="${OUTPUT_SAMPLE_FOLDER}/variants"
+INTERVAL_ARG=""
+if [ ! -z "${INTERVAL_FILE_PATH}" ]
+then
+    INTERVAL_ARG="--interval ${INTERVAL_FILE_PATH}"
+fi
 
 # Generate defined output structure
 
@@ -158,7 +171,7 @@ echo "Directories created successfully"
 # Run Parabricks pipeline
 
 echo "Running Nvidia Clara Parabricks DeepVariant Pipeline"
-pbrun deepvariant_germline \
+/usr/local/parabricks/pbrun deepvariant_germline \
     ${USE_WES_MODEL} \
     ${USE_LOW_MEMORY} \
     --ref ${REFERENCE_SEQUENCE} \
@@ -166,4 +179,5 @@ pbrun deepvariant_germline \
     --out-duplicate-metrics ${OUTPUT_QC_FOLDER}/${SAMPLE_ID}_duplicate_metrics.txt \
     --out-variants ${OUTPUT_VARIANTS_FOLDER}/variants_deepvariant_caller_${SAMPLE_ID}.vcf \
     --logfile ${OUTPUT_LOGS_FOLDER}/parabricks_deepvariant_germline_${SAMPLE_ID}.log \
+    ${INTERVAL_ARG} \
     ${infq}
