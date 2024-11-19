@@ -19,6 +19,7 @@ Required Parameters:
   -r <refseq> : The internal Docker path where the reference sequence .fasta file is mounted (usually in /gpackage)
 Optional Parameters:
   -g <gpackage_path> : Supply a different gpackage path (defaults to /gpackage)
+  -L <interval_file_path> : Interval file to be supplied to the pipeline
 Optional Flags:
   -l : Use low-memory mode for GPUs with 16GB of memory
   -w : Use WES mode
