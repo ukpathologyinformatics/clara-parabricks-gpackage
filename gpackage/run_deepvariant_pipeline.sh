@@ -149,6 +149,9 @@ OUTPUT_BAM_FOLDER="${OUTPUT_SAMPLE_FOLDER}/bam"
 OUTPUT_LOGS_FOLDER="${OUTPUT_SAMPLE_FOLDER}/logs"
 OUTPUT_QC_FOLDER="${OUTPUT_SAMPLE_FOLDER}/QC_stats"
 OUTPUT_VARIANTS_FOLDER="${OUTPUT_SAMPLE_FOLDER}/variants"
+
+# Build supplementary arguments to supply to Parabricks
+
 INTERVAL_ARG=""
 if [ ! -z "${INTERVAL_FILE_PATH}" ]
 then
@@ -174,6 +177,7 @@ echo "Running Nvidia Clara Parabricks DeepVariant Pipeline"
 /usr/local/parabricks/pbrun deepvariant_germline \
     ${USE_WES_MODEL} \
     ${USE_LOW_MEMORY} \
+    --consider-strand-bias \
     --ref ${REFERENCE_SEQUENCE} \
     --out-bam ${OUTPUT_BAM_FOLDER}/${SAMPLE_ID}.bam \
     --out-duplicate-metrics ${OUTPUT_QC_FOLDER}/${SAMPLE_ID}_duplicate_metrics.txt \
