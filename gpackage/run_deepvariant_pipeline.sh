@@ -146,6 +146,7 @@ done
 
 OUTPUT_SAMPLE_FOLDER="${OUTPUT_FILES}/${FLOWCELL_ID}/${PANEL_FOLDER}/${SAMPLE_ID}"
 OUTPUT_BAM_FOLDER="${OUTPUT_SAMPLE_FOLDER}/bam"
+OUTPUT_CONFIG_FILES_FOLDER="${OUTPUT_SAMPLE_FOLDER}/config_files"
 OUTPUT_LOGS_FOLDER="${OUTPUT_SAMPLE_FOLDER}/logs"
 OUTPUT_QC_FOLDER="${OUTPUT_SAMPLE_FOLDER}/QC_stats"
 OUTPUT_VARIANTS_FOLDER="${OUTPUT_SAMPLE_FOLDER}/variants"
@@ -163,6 +164,8 @@ fi
 echo "Creating output directory structure"
 echo "Creating bam directory: ${OUTPUT_BAM_FOLDER}"
 mkdir -p ${OUTPUT_BAM_FOLDER}
+echo "Creating config_files directory: ${OUTPUT_CONFIG_FILES_FOLDER}"
+mkdir -p ${OUTPUT_CONFIG_FILES_FOLDER}
 echo "Creating logs directory: ${OUTPUT_LOGS_FOLDER}"
 mkdir -p ${OUTPUT_LOGS_FOLDER}
 echo "Creating qc directory: ${OUTPUT_QC_FOLDER}"
